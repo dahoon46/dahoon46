@@ -1,6 +1,6 @@
 - 👋 Hi, I’m @dahoon46
 - 👀 I’m interested in Pure Mathematics, Optimization Theory, Algorithms, Cryptography, and Particle Physics.
-- 🌱 I’m currently learning Algebraic Geometry, Differential Geometry, Functional Analysis in Mathematics, and some Algorithms in CS.
+- 🌱 I’m currently learning Algebraic Geometry, Differential Geometry, Functional Analysis, Optimization Theory in Mathematics, and some Algorithms in CS.
 - 💞️ I’m looking to collaborate on theoretical research on Math or CS.
 - 📫 Contacts: dahoon46@snu.ac.kr
 - 😄 Pronouns: He/Him
