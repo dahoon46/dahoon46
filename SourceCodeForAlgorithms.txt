@@ -1,0 +1,482 @@
+*Segment Tree with Lazy Propagation
+
+int seg[2400005],lazy[2400005];//can be changed
+int v[600005];
+int func(int x,int y){return x+y;}
+int rangefunc(int x,int y,int z){return x+y*z;}
+
+int init(int node,int l,int r){//need when initialized
+    return seg[node]=l==r?v[l]:func(init(node*2,l,(l+r)/2),init(node*2+1,(l+r)/2+1,r));//max, min, sum
+}
+void update(int node,int s,int e,int l,int r,int p){//start with (1,s,e,0,n-1,p)
+    if(lazy[node]!=0){
+        seg[node]=rangefunc(seg[node],lazy[node],r-l+1);//max, min, sum(+=diff*(r-l+1))
+        if(l!=r){
+            lazy[node*2]=func(lazy[node*2],lazy[node]);//max, min, sum
+            lazy[node*2+1]=func(lazy[node*2+1],lazy[node]);//max, min, sum
+        }
+        lazy[node]=0;
+    }
+    if(e<l||s>r)return;
+    if(s<=l&&r<=e){
+        seg[node]=rangefunc(seg[node],p,r-l+1);//max, min, sum
+        if(l!=r){
+            lazy[node*2]=func(lazy[node*2],p);//max, min, sum
+            lazy[node*2+1]=func(lazy[node*2+1],p);//max, min, sum
+        }
+        return;
+    }
+    update(node*2,s,e,l,(l+r)/2,p);
+    update(node*2+1,s,e,(l+r)/2+1,r,p);
+    seg[node]=func(seg[node*2],seg[node*2+1]);//max, min, sum
+}
+int calc(int node,int s,int e,int l,int r){//start with (1,s,e,0,n-1)
+    if(lazy[node]!=0){
+        seg[node]=rangefunc(seg[node],lazy[node],r-l+1);//max, min, sum(+=lazy[node]*(r-l+1))
+        if(l!=r){
+            lazy[node*2]=func(lazy[node*2],lazy[node]);//max, min, sum
+            lazy[node*2+1]=func(lazy[node*2+1],lazy[node]);//max, min, sum
+        }
+        lazy[node]=0;
+    }
+    if(e<l||s>r)return 0;
+    if(s<=l&&r<=e)return seg[node];
+    return func(calc(node*2,s,e,l,(l+r)/2),calc(node*2+1,s,e,(l+r)/2+1,r));//max, min, sum
+}
+
+------------------------------------------------------------------------------
+*Coordinate Compression
+
+vector<int> precoord;
+map<int,int> coord;
+
+int main(){
+    
+
+    sort(precoord.begin(),precoord.end());
+    precoord.erase(unique(precoord.begin(),precoord.end()),precoord.end());
+    for(int i=0;i<precoord.size();i++)coord[precoord[i]]=i;
+
+}
+
+------------------------------------------------------------------------------
+*SA, LCP
+
+char s[1000005];
+vector<int> g,sa;
+int t=1,tg[1000005],rk[1000005],lcp[1000005];
+
+bool cmp(int x,int y){
+    return g[x]==g[y]?g[x+t]<g[y+t]:g[x]<g[y];//main point of manber-myers
+}
+
+int main(){
+
+//SA
+    for(int i=0;i<n;i++){
+        sa.push_back(i);
+        g.push_back(s[i]-'a');
+    }
+    g.push_back(-1);
+    while(t<=n){
+        sort(sa.begin(),sa.end(),cmp);
+        tg[sa[0]]=0;
+        for(int i=1;i<n;i++)tg[sa[i]]=tg[sa[i-1]]+cmp(sa[i-1],sa[i]);
+        for(int i=0;i<n;i++)g[i]=tg[i];
+        t*=2;
+    }
+    for(int i=0;i<n;i++)rk[sa[i]]=i;
+
+//LCP
+    int len=0;
+    for(int i=0;i<n;i++){
+        int k=rk[i];
+        if(k){
+            int j=sa[k-1];
+            while(s[j+len]==s[i+len])len++;
+            lcp[k]=len;
+            if(len)len--;//main point of kasai
+        }
+    }
+
+}
+
+-------------------------------------------------------------------------------
+*Z Algorithm
+
+int Z[500005];
+
+void calc_Z(string s){
+    int n=s.size();
+    int L=0, R=0;
+    Z[0]=n;
+    for(int i=1;i<n;i++){
+        if(i>R){
+            L=i, R=i;
+            while(R<n&&s[R-L]==s[R])R++;
+            Z[i]=R-L;
+            R--;
+        }
+        else{
+            if(Z[i-L]<R-i+1)Z[i]=Z[i-L];
+            else{
+                L=i;
+                while(R<n&&s[R-L]==s[R])R++;
+                Z[i]=R-L;
+                R--;
+            }
+        }
+    }
+}
+
+-------------------------------------------------------------------------------
+*DAG Topologial Sort
+
+vector<int> v[100005],s;
+queue<int> q;
+int ord[100005];
+
+int main(){
+
+
+        while(k--){
+            int x,y;
+            scanf("%d %d",&x,&y);
+            ord[y]++;
+            v[x].push_back(y);
+        }
+        for(int i=1;i<=n;i++)if(!ord[i])q.push(i);
+        while(!q.empty()){
+            int x=q.front();
+            for(auto i:v[x]){
+                ord[i]--;
+                if(!ord[i])q.push(i);
+            }
+            s.push_back(x);
+            q.pop();
+        }
+
+}
+
+-------------------------------------------------------------------------------
+*Mobius Function
+
+bool prime[1111111];
+int mu[1111111];
+int C = 1000000; // sieve size
+
+int main()
+{
+	prime[1]=false; mu[1]=1;
+	for(int i=2 ; i<=C ; i++) prime[i]=true, mu[i]=1;
+	for(int i=2 ; i<=C ; i++)
+	{
+		if(!prime[i]) continue;
+		mu[i]=-1; // now i is a prime
+		for(int j=2*i ; j<=C ; j+=i) // iterate over all multiples  
+		{
+			prime[j]=false;
+			mu[j]=-mu[j]; // new prime i
+			if((j/i)%i==0) mu[j]=0; // i * i is a divisor of j
+		}
+	}
+}
+
+-------------------------------------------------------------------------------
+*FFT on complex MOD 1000000007LL
+
+#define MOD 1000000007LL
+#define C 31623LL
+
+typedef complex<long double> cpx;
+typedef long long ll;
+const long double PI=acos(-1L);
+const int N=1<<20;
+int rev[22][N];
+cpx w[22][N];
+void fft(vector<cpx> &a,bool inv,int M){
+    if(inv)for(int i=0;i<M;i++)a[i]/=M;
+    int m=__builtin_ctz(M);
+    for(int i=1;i<M;i++)if(i<rev[m][i])swap(a[i],a[rev[m][i]]);
+    for(int i=1,ii=0;i<M;i<<=1,ii++){
+        for(int j=0;j<M;j+=2*i){
+            for(int l=0;l<i;l++){
+                cpx tmp=a[j+l+i]*(inv?w[ii][l]:conj(w[ii][l]));
+                a[j+l+i]=a[j+l]-tmp;
+                a[j+l]+=tmp;
+            }
+        }
+    }
+}
+void mult(vector<ll> &a, vector<ll> &b,int M){//mult b to a
+    vector<cpx> ia[2],ib[2];
+    a.resize(M); b.resize(M);
+    for(int i=0;i<2;i++){ia[i].resize(M); ib[i].resize(M);}
+    for(int i=0;i<M;i++){
+        ia[0][i]=a[i]%C; ia[1][i]=a[i]/C;
+        ib[0][i]=b[i]%C; ib[1][i]=b[i]/C;
+    }
+    fft(ia[0],false,M); fft(ia[1],false,M);
+    fft(ib[0],false,M); fft(ib[1],false,M);
+    fill(a.begin(),a.end(),0);
+    for(int i=0;i<2;i++)for(int j=0;j<2;j++){
+        vector<cpx> tmp(M);
+        for(int l=0;l<M;l++)tmp[l]=ia[i][l]*ib[j][l];
+        fft(tmp,true,M);
+        ll sc=1LL; for(int l=0;l<i+j;l++)sc=sc*C%MOD;
+        for(int l=0;l<M;l++)a[l]=(a[l]+(((ll)round(tmp[l].real()))%MOD)*sc)%MOD;
+    }
+}
+int main(){
+    for(int i=1,j=0;j<21;i<<=1,j++)for(int l=1;l<i;l++)rev[j][l]=(rev[j][l/2]+i*(l%2))/2;
+    for(int i=1,j=0;j<21;i<<=1,j++)for(int l=0;l<i;l++)w[j][l]={cos(PI*l/i),sin(PI*l/i)};
+    //input
+    int M=1; while(n+m-2>=M)M<<=1;
+    mult(a,b,M);
+    
+}
+
+-------------------------------------------------------------------------------
+*Fenwick Tree(BIT)
+
+#define MAX_N 400000
+
+int fenwick[MAX_N+5];
+
+void update(int x,int num){
+    while(x<=MAX_N){
+        fenwick[x]+=num;
+        x+=(x&-x);
+    }
+}
+int query(int x){
+	int ans=0;
+	while(x>0){
+		ans+=fenwick[x];
+		x-=(x&-x);
+	}
+	return ans;
+}
+
+-------------------------------------------------------------------------------
+*Ford-Fulkerson - use when answer is small enough
+
+stack<int> st;
+vector<int> v[2500];//0: source, 1~n: cow, n+1~n+m: home, n+m+1: sink
+int c[2500];
+int par[2500];
+int flood[2500][2500];
+
+int main()
+{
+	
+    //make bidirectional graph and set flood on v, flood
+
+    int ans=0;
+    while(1){
+        st.push(0);
+        c[0]=1;
+        while(!st.empty()){
+            int x=st.top();
+            st.pop();
+            if(x==n+m+1)break;//sink
+            for(auto y:v[x])if(!c[y]&&flood[x][y]){
+                st.push(y);
+                par[y]=x;
+                c[y]=1;
+            }
+        }
+        if(!c[n+m+1])break;//sink
+
+        int tmp=n+m+1;//sink
+        int partflood=999;
+        while(par[tmp]!=tmp){
+            partflood=min(partflood,flood[par[tmp]][tmp]);
+            tmp=par[tmp];
+        }
+        ans+=partflood;
+        tmp=n+m+1;//sink
+        while(par[tmp]!=tmp){
+            flood[par[tmp]][tmp]-=partflood;
+            flood[tmp][par[tmp]]+=partflood;
+            tmp=par[tmp];
+        }
+        memset(c,0,sizeof(c));
+        memset(par,0,sizeof(par));
+        while(!st.empty())st.pop();
+    }
+}
+
+------------------------------------------------------------------------------
+*MCMF (Edmonds-Karp + SPFA)
+
+#define INF 99999999 //can be changed
+
+queue<int> q;
+vector<int> v[2500];//0: source, 1~n: cow, n+1~n+m: home, n+m+1: sink
+bool c[2500];
+int par[2500];
+int flood[2500][2500];
+int cost[2500][2500];
+int dist[2500];
+int main()
+{
+	
+
+    //make bidirectional graph and set flood and cost on v, flood, cost
+
+    int ans=0,anscost=0;
+
+    while(1){
+        for(int i=0;i<=n+m+1;i++)dist[i]=INF;
+        q.push(0);
+        c[0]=true;
+        dist[0]=0;
+        while(!q.empty()){ //SPFA
+            int x=q.front();
+            q.pop();
+            c[x]=false;
+            for(auto y:v[x])if(dist[y]>dist[x]+cost[x][y]&&flood[x][y]){
+                par[y]=x;
+                dist[y]=dist[x]+cost[x][y];
+                if(!c[y]){
+                    q.push(y);
+                    c[y]=true;
+                }
+            }
+        }
+        if(dist[n+m+1]==INF)break;//sink
+
+        int tmp=n+m+1;//sink
+        int partflood=INF;
+        while(par[tmp]!=tmp){
+            partflood=min(partflood,flood[par[tmp]][tmp]);
+            tmp=par[tmp];
+        }
+        ans+=partflood;
+        anscost+=partflood*dist[n+m+1];
+        tmp=n+m+1;//sink
+        while(par[tmp]!=tmp){
+            flood[par[tmp]][tmp]-=partflood;
+            flood[tmp][par[tmp]]+=partflood;
+            tmp=par[tmp];
+        }
+    }
+    printf("%d\n%d",ans,anscost);
+}
+
+------------------------------------------------------------------------------
+*Manacher
+
+vector<int> d;
+string tmps;
+void manacher(string tmps){
+    int n=tmps.size();
+    string s;
+    s.resize(2*n-1); d.resize(2*n-1);
+    for(int i=0;i<n;i++){
+        if(i)s[2*i-1]='*';
+        s[2*i]=tmps[i];
+    }
+    int cursor=0,center=0;
+    for(int i=1;i<2*n-1;i++){
+        if(i>cursor){
+            int tmp=0;
+            while(i+tmp+1<2*n-1&&i-tmp-1>=0&&s[i+tmp+1]==s[i-tmp-1])tmp++;
+            if(i+tmp>cursor){
+                center=i;
+                cursor=i+tmp;
+            }
+            d[i]=tmp;
+        }
+        else if(i+d[2*center-i]>=cursor){
+            int tmp=cursor-i;
+            while(i+tmp+1<2*n-1&&i-tmp-1>=0&&s[i+tmp+1]==s[i-tmp-1])tmp++;
+            if(i+tmp>cursor){
+                center=i;
+                cursor=i+tmp;
+            }
+            d[i]=tmp;
+        }
+        else{
+            d[i]=d[2*center-i];
+        }
+    }
+    for(int i=0;i<d.size();i++)d[i]=d[i]+(s[i+d[i]]!='*');
+}
+
+-------------------------------------------------------------------------------------
+*Convex Hull + Rotating Calipers
+
+#define fi first
+#define se second
+#define ll long long
+using namespace std;
+
+vector<pair<ll,ll>> v,conv;
+
+bool cmp(pair<ll,ll> aa,pair<ll,ll> bb){
+    auto o=v[0];
+    pair<ll,ll> a=make_pair(aa.fi-o.fi,aa.se-o.se);
+    pair<ll,ll> b=make_pair(bb.fi-o.fi,bb.se-o.se);
+    if(a.fi*b.se!=a.se*b.fi)return a.se*b.fi<a.fi*b.se;
+    if(a.fi!=b.fi)return a.fi<b.fi;
+    return a.se<b.se;
+}
+
+int main(){
+
+
+        int n;
+        scanf("%d",&n);
+
+        //Convex Hull
+        int origin=-1;
+        ll tmpx=10000005LL,tmpy=10000005LL;
+        for(int i=0;i<n;i++){
+            ll x,y;
+            scanf("%lld%lld",&x,&y);
+            v.emplace_back(x,y);
+            if(x<tmpx||(x==tmpx&&y<tmpy)){
+                origin=i;
+                tmpx=x;
+                tmpy=y;
+        }
+        }
+        if(origin)swap(v[0],v[origin]);
+        sort(v.begin()+1,v.end(),cmp);
+        v.push_back(v[0]);
+        conv.push_back(v[0]);
+        conv.push_back(v[1]);
+        for(int i=2;i<=n;i++){
+            while(((i<n&&conv.size()>=2)||(i==n&&conv.size()>2))&&(conv[conv.size()-1].fi-conv[conv.size()-2].fi)*(v[i].se-conv[conv.size()-1].se)-(conv[conv.size()-1].se-conv[conv.size()-2].se)*(v[i].fi-conv[conv.size()-1].fi)<=0LL)conv.pop_back();
+            if(i<n)conv.push_back(v[i]);
+        }
+        //for(auto i:conv)printf("%lld %lld\n",i.fi,i.se);
+
+        //Rotating Calipers
+        int l=0,r=0;
+        tmpx=conv[0].fi,tmpy=conv[0].se;
+        for(int i=0;i<conv.size();i++)if(conv[i].fi>tmpx||(conv[i].fi==tmpx&&conv[i].se>tmpy)){
+            r=i;
+            tmpx=conv[i].fi;
+            tmpy=conv[i].se;
+        }
+        int tl=l,tr=r;
+        ll dist=(conv[r].fi-conv[l].fi)*(conv[r].fi-conv[l].fi)+(conv[r].se-conv[l].se)*(conv[r].se-conv[l].se);
+
+        for(int i=0;i<conv.size();i++){
+            int nextl=(l+1)%conv.size(),nextr=(r+1)%conv.size();
+            if((conv[nextl].fi-conv[l].fi)*(conv[nextr].se-conv[r].se)-(conv[nextl].se-conv[l].se)*(conv[nextr].fi-conv[r].fi)<0LL)l=nextl;
+            else r=nextr;
+            //printf("%d %d\n",l,r);
+            if(dist<(conv[r].fi-conv[l].fi)*(conv[r].fi-conv[l].fi)+(conv[r].se-conv[l].se)*(conv[r].se-conv[l].se)){
+                dist=(conv[r].fi-conv[l].fi)*(conv[r].fi-conv[l].fi)+(conv[r].se-conv[l].se)*(conv[r].se-conv[l].se);
+                tl=l;
+                tr=r;
+            }
+        }
+        printf("%lld %lld %lld %lld\n",conv[tl].fi,conv[tl].se,conv[tr].fi,conv[tr].se);
+
+    }
+}
