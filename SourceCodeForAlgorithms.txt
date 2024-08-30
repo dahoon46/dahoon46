@@ -310,60 +310,52 @@ int main()
 ------------------------------------------------------------------------------
 *MCMF (Edmonds-Karp + SPFA)
 
-#define INF 99999999 //can be changed
+#define MAXV 2505
+#define INF (1LL<<60)
 
+struct EDGE{
+    int v,r_ind;
+    ll flow,cost;
+    EDGE(int v,ll flow,ll cost,int r_ind) : v(v), cost(cost), flow(flow), r_ind(r_ind) {} 
+};
+vector<EDGE> edges[MAXV];
+void add_edge(int x,int y,ll flow,ll cost){
+    edges[x].emplace_back(y,flow,cost,edges[y].size());
+    edges[y].emplace_back(x,0,-cost,edges[x].size()-1);
+}
+ll dist[MAXV]; int par[MAXV]; bool chk[MAXV];
 queue<int> q;
-vector<int> v[2500];//0: source, 1~n: cow, n+1~n+m: home, n+m+1: sink
-bool c[2500];
-int par[2500];
-int flood[2500][2500];
-int cost[2500][2500];
-int dist[2500];
-int main()
-{
-	
+int main(){
+    // s, t, cost, flow, adj, N
 
-    //make bidirectional graph and set flood and cost on v, flood, cost
-
-    int ans=0,anscost=0;
-
+    ll ans=0,anscost=0;
     while(1){
-        for(int i=0;i<=n+m+1;i++)dist[i]=INF;
-        q.push(0);
-        c[0]=true;
-        dist[0]=0;
-        while(!q.empty()){ //SPFA
-            int x=q.front();
-            q.pop();
-            c[x]=false;
-            for(auto y:v[x])if(dist[y]>dist[x]+cost[x][y]&&flood[x][y]){
-                par[y]=x;
-                dist[y]=dist[x]+cost[x][y];
-                if(!c[y]){
-                    q.push(y);
-                    c[y]=true;
+        for(int i=0;i<N;i++)dist[i]=INF;
+        dist[s]=0; q.push(s); chk[s]=true;
+        while(!q.empty()){
+            int x=q.front(); q.pop(); chk[x]=false;
+            for(auto E:edges[x])if(E.flow&&dist[E.v]>dist[x]+E.cost){
+                par[E.v]=E.r_ind; dist[E.v]=dist[x]+E.cost;
+                if(!chk[E.v]){
+                    q.push(E.v); chk[E.v]=true;
                 }
             }
         }
-        if(dist[n+m+1]==INF)break;//sink
-
-        int tmp=n+m+1;//sink
-        int partflood=INF;
-        while(par[tmp]!=tmp){
-            partflood=min(partflood,flood[par[tmp]][tmp]);
-            tmp=par[tmp];
+        if(dist[t]==INF)break;
+        ll mxflow=INF;
+        for(int x=t;x!=s;x=edges[x][par[x]].v){
+            EDGE &e=edges[x][par[x]];
+            mxflow=min(mxflow,edges[e.v][e.r_ind].flow);
         }
-        ans+=partflood;
-        anscost+=partflood*dist[n+m+1];
-        tmp=n+m+1;//sink
-        while(par[tmp]!=tmp){
-            flood[par[tmp]][tmp]-=partflood;
-            flood[tmp][par[tmp]]+=partflood;
-            tmp=par[tmp];
+        ans+=mxflow; anscost+=dist[t]*mxflow;
+        for(int x=t;x!=s;x=edges[x][par[x]].v){
+            EDGE &e=edges[x][par[x]];
+            edges[e.v][e.r_ind].flow-=mxflow; e.flow+=mxflow;
         }
     }
-    printf("%d\n%d",ans,anscost);
+    // printf("%lld %lld\n",ans,anscost);
 }
+
 
 ------------------------------------------------------------------------------
 *Manacher
