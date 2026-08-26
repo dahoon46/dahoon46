@@ -1,9 +1,9 @@
 - 👋 Hi, I’m @dahoon46
-- 👀 I’m interested in Pure Mathematics, Optimization Theory, Algorithms, Cryptography, and Quantum Mechanics.
-- 🌱 I’m currently learning Algebraic Geometry, Optimization Theory in Mathematics, and Advanced Algorithms in CS.
-- 👓 I'm currently researching on Approximate Algorithms.
-- 💞️ I’m looking to collaborate on theoretical research on Math or CS.
-- 📫 Contacts: dahoon46@snu.ac.kr
+- 👀 I’m interested in Discrete Mathematics, Probability Theory, and Algorithms.
+- 🌱 I’m currently learning Information Theory and Quantum Algorithms.
+- 👓 I'm currently researching on Approximation Algorithms and Graph Algorithms.
+- 💞️ I’m looking to collaborate on TCS research.
+- 📫 Contacts: dahoon.lee@nyu.edu
 - 😄 Pronouns: He/Him
 - 🟧 CF rating: 2137(max: 2137)
 
